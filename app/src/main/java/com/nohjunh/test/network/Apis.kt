@@ -10,7 +10,7 @@ interface Apis {
     @Headers(
         "Content-Type:application/json",
         "Authorization:Bearer API")
-    @POST("v1/completions")
+    @POST("v1/chat/completions")
     suspend fun postRequest(
         @Body json : JsonObject
     ) : GptResponse

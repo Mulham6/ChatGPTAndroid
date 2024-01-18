@@ -1,8 +1,13 @@
 package com.nohjunh.test.model
 
-import com.google.gson.annotations.SerializedName
-
 data class GptText(
-    @SerializedName("text")
-    val text : String
+    val index: Int,
+    val message: Message,
+    val logprobs: Any?, // null in most cases
+    val finish_reason: String
+)
+
+data class Message(
+    val role: String,
+    val content: String
 )

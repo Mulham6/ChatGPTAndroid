@@ -5,6 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.gson.Gson
+import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.nohjunh.test.database.entity.ContentEntity
 import com.nohjunh.test.model.GptText
@@ -12,7 +13,6 @@ import com.nohjunh.test.repository.DatabaseRepository
 import com.nohjunh.test.repository.NetWorkRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import org.json.JSONObject
 import timber.log.Timber
 
 class MainViewModel : ViewModel() {
@@ -33,25 +33,31 @@ class MainViewModel : ViewModel() {
         get() = _gptInsertCheck
 
     fun postResponse(query : String) = viewModelScope.launch {
-        val jsonObject: JsonObject? = JsonObject().apply{
+        val jsonObject: JsonObject = JsonObject().apply{
             // params
-            addProperty("model", "text-davinci-003")
-            addProperty("prompt", query)
+            addProperty("model", "gpt-3.5-turbo")
+            add("messages", JsonArray().apply {
+                add(JsonObject().apply {
+                    addProperty("role", "user")
+                    addProperty("content", query)
+                })
+            })
             addProperty("temperature", 0)
-            addProperty("max_tokens", 500)
-            addProperty("top_p", 1)
-            addProperty("frequency_penalty", 0.0)
-            addProperty("presence_penalty", 0.0)
+//            addProperty("max_tokens", 500)
+//            addProperty("top_p", 1)
+//            addProperty("frequency_penalty", 0.0)
+//            addProperty("presence_penalty", 0.0)
         }
+        Timber.tag("Request json").e("${jsonObject}")
         val response = netWorkRepository.postResponse(jsonObject!!)
-        Timber.tag("응답결과").e("${response.choices.get(0)}")
+        Timber.tag("Response result").e("${response.choices.get(0)}")
         // json -> object 는 fromJson
         // object -> json 은 toJson
         val gson = Gson()
         val tempjson = gson.toJson(response.choices.get(0))
         val tempgson = gson.fromJson(tempjson, GptText::class.java)
-        Timber.tag("가공결과").e("${tempgson.text}")
-        insertContent(tempgson.text.toString(), 1)
+        Timber.tag("Processing results").e("${tempgson.message.content}")
+        insertContent(tempgson.message.content, 1)
     }
 
     fun getContentData() = viewModelScope.launch(Dispatchers.IO) {

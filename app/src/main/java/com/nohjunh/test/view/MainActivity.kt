@@ -43,7 +43,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         /* coil GIF 확장 라이브러리 */
-        val imageLoader = this?.let {
+        val imageLoader = this.let {
             ImageLoader.Builder(it)
                 .components {
                     if (SDK_INT >= 28) {
@@ -109,7 +109,7 @@ class MainActivity : AppCompatActivity() {
         //binding.RVContainer.scrollToPosition(contentDataList.size-1)
         CoroutineScope(Dispatchers.Main).launch {
             delay(100)
-            binding.SVContainer.fullScroll(ScrollView.FOCUS_DOWN);
+            binding.SVContainer.fullScroll(ScrollView.FOCUS_DOWN)
             if (branch != 1) {
                 binding.EDView.requestFocus()
             }
@@ -117,16 +117,16 @@ class MainActivity : AppCompatActivity() {
         // onClick 구현
         contentAdapter.delChatLayoutClick = object : ContentAdapter.DelChatLayoutClick {
             override fun onLongClick(view : View, position: Int) {
-                Timber.tag("삭제버튼클릭").e("${contentDataList[position].id}")
+                Timber.tag("delete button clicked").e("${contentDataList[position].id}")
                 // alertDialog
                 val builder = AlertDialog.Builder(this@MainActivity)
-                builder.setTitle("대화컨텐츠 삭제")
-                    .setMessage("한번 삭제된 대화는 복구할 수 없습니다.")
-                    .setPositiveButton("확인",
+                builder.setTitle("Delete conversation content?")
+                    .setMessage("Once a conversation is deleted, it cannot be recovered.")
+                    .setPositiveButton("delete",
                         DialogInterface.OnClickListener { dialog, id ->
                             viewModel.deleteSelectedContent(contentDataList[position].id)
                         })
-                    .setNegativeButton("취소",
+                    .setNegativeButton("cancel",
                         DialogInterface.OnClickListener { dialog, id ->
                         })
                 // 다이얼로그를 띄워주기
